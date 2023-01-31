@@ -34,6 +34,7 @@
 #include "osi/include/allocator.h"
 #include "osi/include/log.h"
 #include "osi/include/osi.h"
+#include "osi/include/properties.h"
 #include "stack/include/bt_hdr.h"
 
 //
@@ -324,6 +325,9 @@ static void a2dp_vendor_ldac_encoder_update(A2dpCodecConfig* a2dp_codec_config,
         __func__, result, LDACBT_API_ERR(err_code), LDACBT_HANDLE_ERR(err_code),
         LDACBT_BLOCK_ERR(err_code), err_code);
   }
+
+  osi_property_set("baikal.last.a2dp_codec","LDAC");
+  osi_property_set("baikal.last.a2dp_bitrate", 0);
 }
 
 void a2dp_vendor_ldac_encoder_cleanup(void) {

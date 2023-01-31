@@ -29,6 +29,7 @@
 #include "osi/include/allocator.h"
 #include "osi/include/log.h"
 #include "osi/include/osi.h"
+#include "osi/include/properties.h"
 #include "stack/include/bt_hdr.h"
 
 //
@@ -225,7 +226,9 @@ static void a2dp_vendor_aptx_encoder_update(A2dpCodecConfig* a2dp_codec_config,
   LOG_INFO("%s: sample_rate=%u bits_per_sample=%u channel_count=%u", __func__,
            p_feeding_params->sample_rate, p_feeding_params->bits_per_sample,
            p_feeding_params->channel_count);
-  a2dp_vendor_aptx_feeding_reset();
+
+  osi_property_set("baikal.last.a2dp_codec","APTX");
+  osi_property_set("baikal.last.a2dp_bitrate", 0);
 }
 
 void a2dp_vendor_aptx_encoder_cleanup(void) {

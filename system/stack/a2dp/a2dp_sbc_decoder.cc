@@ -16,6 +16,11 @@
 
 #define LOG_TAG "a2dp_sbc_decoder"
 
+#ifdef LOG_NDEBUG
+#undef LOG_NDEBUG
+#endif
+#define LOG_NDEBUG 0
+
 #include "a2dp_sbc_decoder.h"
 
 #include <base/logging.h>

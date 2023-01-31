@@ -52,6 +52,7 @@ import com.android.bluetooth.btservice.MetricsLogger;
 import com.android.bluetooth.btservice.ProfileService;
 import com.android.bluetooth.btservice.ServiceFactory;
 import com.android.bluetooth.btservice.storage.DatabaseManager;
+import com.android.bluetooth.btservice.storage.BaikalDatabase;
 import com.android.bluetooth.hfp.HeadsetService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -78,6 +79,7 @@ public class A2dpService extends ProfileService {
 
     private AdapterService mAdapterService;
     private DatabaseManager mDatabaseManager;
+    private BaikalDatabase mBaikalDatabase;
     private HandlerThread mStateMachinesThread;
 
     @VisibleForTesting
@@ -135,8 +137,12 @@ public class A2dpService extends ProfileService {
                 "AdapterService cannot be null when A2dpService starts");
         mA2dpNativeInterface = Objects.requireNonNull(A2dpNativeInterface.getInstance(),
                 "A2dpNativeInterface cannot be null when A2dpService starts");
+
         mDatabaseManager = Objects.requireNonNull(mAdapterService.getDatabase(),
                 "DatabaseManager cannot be null when A2dpService starts");
+        mBaikalDatabase = Objects.requireNonNull(mAdapterService.getBaikalDatabase(),
+                "BaikalDatabase cannot be null when A2dpService starts");
+
         mAudioManager = getSystemService(AudioManager.class);
         Objects.requireNonNull(mAudioManager,
                                "AudioManager cannot be null when A2dpService starts");
@@ -887,7 +893,13 @@ public class A2dpService extends ProfileService {
      * {@link OptionalCodecsPreferenceStatus#OPTIONAL_CODECS_PREF_UNKNOWN}.
      */
     public @OptionalCodecsPreferenceStatus int getOptionalCodecsEnabled(BluetoothDevice device) {
-        return mDatabaseManager.getA2dpOptionalCodecsEnabled(device);
+        int value = mDatabaseManager.getA2dpOptionalCodecsEnabled(device);
+        int bitrate = getSbcBitrate(device);
+        if( bitrate > 0 && value == BluetoothA2dp.OPTIONAL_CODECS_PREF_ENABLED ) {
+            mDatabaseManager.setA2dpOptionalCodecsEnabled(device, BluetoothA2dp.OPTIONAL_CODECS_PREF_DISABLED);
+            return BluetoothA2dp.OPTIONAL_CODECS_PREF_DISABLED;
+        }
+        return value;
     }
 
     /**
@@ -901,6 +913,13 @@ public class A2dpService extends ProfileService {
      */
     public void setOptionalCodecsEnabled(BluetoothDevice device,
             @OptionalCodecsPreferenceStatus int value) {
+
+        int bitrate = getSbcBitrate(device);
+        if( bitrate > 0 && value == BluetoothA2dp.OPTIONAL_CODECS_PREF_ENABLED ) {
+            Log.w(TAG, "Unexpected value passed to setOptionalCodecsEnabled:" + value + ", SBC HD enabled");
+            return;
+        }
+
         if (value != BluetoothA2dp.OPTIONAL_CODECS_PREF_UNKNOWN
                 && value != BluetoothA2dp.OPTIONAL_CODECS_PREF_DISABLED
                 && value != BluetoothA2dp.OPTIONAL_CODECS_PREF_ENABLED) {
@@ -951,6 +970,40 @@ public class A2dpService extends ProfileService {
         return mAdapterService.setBufferLengthMillis(codec, value);
     }
 
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED)
+    public int getSbcBitrate(BluetoothDevice device) {
+        int rate = 0;
+        try {
+            rate = mBaikalDatabase.getSbcBitrate(device);
+        }
+        catch(Exception e) {
+            Log.i(TAG, "getSbcBitrate exception:", e);
+            return 0;
+        }
+        Log.i(TAG, "getSbcBitrate:" + rate);
+        return rate;
+    }
+
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED)
+    public void setSbcBitrate(BluetoothDevice device, int value) {
+        Log.i(TAG, "setSbcBitrate :" + value);
+
+        try {
+            mBaikalDatabase.setSbcBitrate(device, value);
+            mA2dpCodecConfig.setSbcBitrate(device, value);
+        }
+        catch(Exception e) {
+            Log.i(TAG, "setSbcBitrate exception:", e);
+        }
+    }
+
+    @RequiresPermission(android.Manifest.permission.BLUETOOTH_PRIVILEGED)
+    public void updateSbcBitrate(BluetoothDevice device) {
+        setSbcBitrate(device,getSbcBitrate(device));
+    }
+
+
+
     // Handle messages from native (JNI) to Java
     void messageFromNative(A2dpStackEvent stackEvent) {
         Objects.requireNonNull(stackEvent.device,
@@ -961,8 +1014,10 @@ public class A2dpService extends ProfileService {
             if (sm == null) {
                 if (stackEvent.type == A2dpStackEvent.EVENT_TYPE_CONNECTION_STATE_CHANGED) {
                     switch (stackEvent.valueInt) {
+                        case A2dpStackEvent.CONNECTION_STATE_CONNECTING: {
+                            updateSbcBitrate(device);
+                        }
                         case A2dpStackEvent.CONNECTION_STATE_CONNECTED:
-                        case A2dpStackEvent.CONNECTION_STATE_CONNECTING:
                             // Create a new state machine only when connecting to a device
                             if (!connectionAllowedCheckMaxDevices(device)) {
                                 Log.e(TAG, "Cannot connect to " + device
@@ -1191,6 +1246,11 @@ public class A2dpService extends ProfileService {
             Log.i(TAG, "updateOptionalCodecsSupport: Mandatory codec is not selectable.");
             return;
         }
+
+        int bitrate = getSbcBitrate(device);
+        setSbcBitrate(device,bitrate);
+
+        //if( bitrate > 0 ) supportsOptional = false;
 
         if (previousSupport == BluetoothA2dp.OPTIONAL_CODECS_SUPPORT_UNKNOWN
                 || supportsOptional != (previousSupport
@@ -1669,6 +1729,31 @@ public class A2dpService extends ProfileService {
                 receiver.propagateException(e);
             }
         }
+
+        @Override
+        public void getSbcBitrate(BluetoothDevice device, AttributionSource source,
+                SynchronousResultReceiver receiver) {
+            try {
+                A2dpService service = getService(source);
+                int sbcBitrate = 0;
+                if (service != null) {
+                    sbcBitrate = service.getSbcBitrate(device);
+                }
+                receiver.send(sbcBitrate);
+            } catch (RuntimeException e) {
+                receiver.propagateException(e);
+            }
+        }
+
+        @Override
+        public void setSbcBitrate(BluetoothDevice device, int value, AttributionSource source) {
+            A2dpService service = getService(source);
+            if (service == null) {
+                return;
+            }
+            service.setSbcBitrate(device, value);
+        }
+
     }
 
     @Override

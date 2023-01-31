@@ -110,6 +110,7 @@ import com.android.bluetooth.btservice.RemoteDevices.DeviceProperties;
 import com.android.bluetooth.btservice.activityattribution.ActivityAttributionService;
 import com.android.bluetooth.btservice.bluetoothkeystore.BluetoothKeystoreService;
 import com.android.bluetooth.btservice.storage.DatabaseManager;
+import com.android.bluetooth.btservice.storage.BaikalDatabase;
 import com.android.bluetooth.btservice.storage.MetadataDatabase;
 import com.android.bluetooth.csip.CsipSetCoordinatorService;
 import com.android.bluetooth.gatt.GattService;
@@ -299,6 +300,7 @@ public class AdapterService extends Service {
     private PhonePolicy mPhonePolicy;
     private ActiveDeviceManager mActiveDeviceManager;
     private DatabaseManager mDatabaseManager;
+    private BaikalDatabase mBaikalDatabase;
     private SilenceDeviceManager mSilenceDeviceManager;
     private AppOpsManager mAppOps;
 
@@ -517,6 +519,8 @@ public class AdapterService extends Service {
 
         mDatabaseManager = new DatabaseManager(this);
         mDatabaseManager.start(MetadataDatabase.createDatabase(this));
+
+        mBaikalDatabase = new BaikalDatabase(mHandler,this);
 
         boolean isAutomotiveDevice = getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_AUTOMOTIVE);
@@ -909,6 +913,10 @@ public class AdapterService extends Service {
 
         if (mDatabaseManager != null) {
             mDatabaseManager.cleanup();
+        }
+
+        if (mBaikalDatabase != null) {
+            mBaikalDatabase.cleanup();
         }
 
         if (mAdapterStateMachine != null) {
@@ -3137,6 +3145,10 @@ public class AdapterService extends Service {
                 service.mDatabaseManager.factoryReset();
             }
 
+            if (service.mBaikalDatabase != null) {
+                service.mBaikalDatabase.factoryReset();
+            }
+
             if (service.mBluetoothKeystoreService != null) {
                 service.mBluetoothKeystoreService.factoryReset();
             }
@@ -3902,6 +3914,10 @@ public class AdapterService extends Service {
     @VisibleForTesting
     public DatabaseManager getDatabase() {
         return mDatabaseManager;
+    }
+
+    public BaikalDatabase getBaikalDatabase() {
+        return mBaikalDatabase;
     }
 
     public byte[] getByteIdentityAddress(BluetoothDevice device) {

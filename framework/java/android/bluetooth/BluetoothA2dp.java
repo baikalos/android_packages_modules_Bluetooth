@@ -1039,6 +1039,45 @@ public final class BluetoothA2dp implements BluetoothProfile {
         }
     }
 
+
+    public void setSbcBitrate(@NonNull BluetoothDevice device, int value) {
+        if (DBG) log("setSbcBitrate(" + device + ")");
+        verifyDeviceNotNull(device, "setSbcBitrate");
+        final IBluetoothA2dp service = getService();
+        if (service == null) {
+            Log.w(TAG, "Proxy not attached to service");
+            if (DBG) log(Log.getStackTraceString(new Throwable()));
+        } else if (isEnabled() && isValidDevice(device)) {
+            try {
+                service.setSbcBitrate(device, value, mAttributionSource);
+            } catch (RemoteException e) {
+                Log.e(TAG, e.toString() + "\n" + Log.getStackTraceString(new Throwable()));
+            }
+        }
+    }
+
+    public int getSbcBitrate(@NonNull BluetoothDevice device) {
+        if (DBG) Log.d(TAG, "getSbcBitrate(" + device + ")");
+        verifyDeviceNotNull(device, "getSbcBitrate");
+        final IBluetoothA2dp service = getService();
+        final int defaultValue = 0;
+        if (service == null) {
+            Log.w(TAG, "Proxy not attached to service");
+            if (DBG) log(Log.getStackTraceString(new Throwable()));
+        } else if (isEnabled() && isValidDevice(device)) {
+            try {
+                final SynchronousResultReceiver<Integer> recv =
+                        SynchronousResultReceiver.get();
+                service.getSbcBitrate(device, mAttributionSource, recv);
+                return recv.awaitResultNoInterrupt(getSyncTimeout()).getValue(defaultValue);
+            } catch (RemoteException | TimeoutException e) {
+                Log.e(TAG, e.toString() + "\n" + Log.getStackTraceString(new Throwable()));
+            }
+        }
+        return defaultValue;
+    }
+
+
     /**
      * Get the supported type of the Dynamic Audio Buffer.
      * <p>Possible return values are

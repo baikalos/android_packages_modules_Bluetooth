@@ -229,10 +229,10 @@ public final class BluetoothCodecConfig implements Parcelable {
     private final @SampleRate int mSampleRate;
     private final @BitsPerSample int mBitsPerSample;
     private final @ChannelMode int mChannelMode;
-    private final long mCodecSpecific1;
-    private final long mCodecSpecific2;
-    private final long mCodecSpecific3;
-    private final long mCodecSpecific4;
+    private long mCodecSpecific1;
+    private long mCodecSpecific2;
+    private long mCodecSpecific3;
+    private long mCodecSpecific4;
 
     /**
      * Creates a new BluetoothCodecConfig.
@@ -561,6 +561,10 @@ public final class BluetoothCodecConfig implements Parcelable {
         return mCodecSpecific1;
     }
 
+    public void setCodecSpecific1(long value) {
+        mCodecSpecific1 = value;
+    }
+
     /**
      * Returns the codec specific value2.
      * As the value and usage differ for each codec, please refer to the concerned
@@ -664,6 +668,7 @@ public final class BluetoothCodecConfig implements Parcelable {
      * @hide
      */
     public boolean sameAudioFeedingParameters(BluetoothCodecConfig other) {
+        if( other != null && other.mCodecSpecific1 != mCodecSpecific1) return false;
         return (other != null && other.mSampleRate == mSampleRate
                 && other.mBitsPerSample == mBitsPerSample
                 && other.mChannelMode == mChannelMode);
@@ -681,6 +686,9 @@ public final class BluetoothCodecConfig implements Parcelable {
         if (other == null || mCodecType != other.mCodecType) {
             return false;
         }
+
+        if (other.mCodecSpecific1 != mCodecSpecific1 ) return false;
+
         int sampleRate = other.mSampleRate;
         if (mSampleRate == SAMPLE_RATE_NONE
                 || sampleRate == SAMPLE_RATE_NONE) {
@@ -720,6 +728,7 @@ public final class BluetoothCodecConfig implements Parcelable {
             case SOURCE_CODEC_TYPE_LDAC:
             case SOURCE_CODEC_TYPE_LC3:
             case SOURCE_CODEC_TYPE_OPUS:
+            case SOURCE_CODEC_TYPE_SBC:
               if (mCodecSpecific1 != other.mCodecSpecific1) {
                 return false;
               }
