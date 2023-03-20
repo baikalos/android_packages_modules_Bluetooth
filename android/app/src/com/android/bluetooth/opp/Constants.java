@@ -205,7 +205,7 @@ public class Constants {
     /** Notify NFC of the transfer progress periodically, or it will timeout after 20sec. */
     static final int NFC_ALIVE_CHECK_MS = 10000;
 
-    static final boolean DEBUG = true;
+    static final boolean DEBUG = false;
 
     static final boolean VERBOSE = false;
 

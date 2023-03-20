@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class SapRilReceiver {
     private static final String TAG = "SapRilReceiver";
-    public static final boolean DEBUG = true;
-    public static final boolean VERBOSE = true;
+    public static final boolean DEBUG = false;
+    public static final boolean VERBOSE = false;
 
     private static final String SERVICE_NAME_RIL_BT = "slot1";
     // match with constant in ril.cpp - as in RIL.java
