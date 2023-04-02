@@ -385,8 +385,12 @@ bool A2dpCodecConfig::setCodecUserConfig(
   if ((saved_codec_config.sample_rate != new_codec_config.sample_rate) ||
       (saved_codec_config.bits_per_sample !=
        new_codec_config.bits_per_sample) ||
-      (saved_codec_config.channel_mode != new_codec_config.channel_mode)) {
-    *p_restart_input = true;
+      (saved_codec_config.channel_mode != new_codec_config.channel_mode) || 
+      (saved_codec_config.codec_specific_1 != new_codec_config.codec_specific_1) || 
+      (saved_codec_config.codec_specific_2 != new_codec_config.codec_specific_2) || 
+      (saved_codec_config.codec_specific_3 != new_codec_config.codec_specific_3) || 
+      (saved_codec_config.codec_specific_4 != new_codec_config.codec_specific_4) ) {    
+      *p_restart_input = true;
   }
 
   //
