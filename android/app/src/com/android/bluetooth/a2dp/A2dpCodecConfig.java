@@ -143,7 +143,7 @@ class A2dpCodecConfig {
         mA2dpNativeInterface.setCodecConfigPreference(device, codecConfigArray);
     }
 
-    void disableOptionalCodecs(BluetoothDevice device, BluetoothCodecConfig currentCodecConfig) {
+    void disableOptionalCodecs(BluetoothDevice device, BluetoothCodecConfig currentCodecConfig, int bitrate) {
         /*if (currentCodecConfig != null && currentCodecConfig.isMandatoryCodec()) {
             Log.i(TAG, "disableOptionalCodecs: already using mandatory codec.");
             return;
@@ -157,32 +157,12 @@ class A2dpCodecConfig {
         for (int i = 0; i < codecConfigArray.length; i++) {
             BluetoothCodecConfig codecConfig = codecConfigArray[i];
             if (codecConfig.isMandatoryCodec()) {
+                codecConfig.setCodecSpecific1(bitrate);
                 codecConfig.setCodecPriority(BluetoothCodecConfig.CODEC_PRIORITY_HIGHEST);
             } else {
                 codecConfigArray[i] = null;
             }
         }
-        mA2dpNativeInterface.setCodecConfigPreference(device, codecConfigArray);
-    }
-
-
-    void setSbcBitrate(BluetoothDevice device, int bitrate) {
-
-        BluetoothCodecConfig[] codecConfigArray = assignCodecConfigPriorities(bitrate > 0);
-        if (codecConfigArray == null) {
-            return;
-        }
-
-        // Set the mandatory codec's priority to default, and remove the rest
-        for (int i = 0; i < codecConfigArray.length; i++) {
-            BluetoothCodecConfig codecConfig = codecConfigArray[i];
-            if( codecConfig != null ) {
-                if (codecConfig.isMandatoryCodec()) {
-                    codecConfigArray[i].setCodecSpecific1(bitrate);
-                }
-            }
-        }
-
         mA2dpNativeInterface.setCodecConfigPreference(device, codecConfigArray);
     }
 

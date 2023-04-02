@@ -861,7 +861,7 @@ public class A2dpService extends ProfileService {
             return;
         }
         updateLowLatencyAudioSupport(device);
-        mA2dpCodecConfig.disableOptionalCodecs(device, codecStatus.getCodecConfig());
+        mA2dpCodecConfig.disableOptionalCodecs(device, codecStatus.getCodecConfig(), getSbcBitrate(device));
     }
 
     /**
@@ -990,7 +990,7 @@ public class A2dpService extends ProfileService {
 
         try {
             mBaikalDatabase.setSbcBitrate(device, value);
-            mA2dpCodecConfig.setSbcBitrate(device, value);
+            updateOptionalCodecsSupport(device);
         }
         catch(Exception e) {
             Log.i(TAG, "setSbcBitrate exception:", e);
@@ -1001,8 +1001,6 @@ public class A2dpService extends ProfileService {
     public void updateSbcBitrate(BluetoothDevice device) {
         setSbcBitrate(device,getSbcBitrate(device));
     }
-
-
 
     // Handle messages from native (JNI) to Java
     void messageFromNative(A2dpStackEvent stackEvent) {
@@ -1246,9 +1244,6 @@ public class A2dpService extends ProfileService {
             Log.i(TAG, "updateOptionalCodecsSupport: Mandatory codec is not selectable.");
             return;
         }
-
-        int bitrate = getSbcBitrate(device);
-        setSbcBitrate(device,bitrate);
 
         //if( bitrate > 0 ) supportsOptional = false;
 
@@ -1756,7 +1751,6 @@ public class A2dpService extends ProfileService {
             }
             service.setSbcBitrate(device, value);
         }
-
     }
 
     @Override
