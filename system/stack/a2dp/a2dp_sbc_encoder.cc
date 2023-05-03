@@ -45,11 +45,13 @@
 #define A2DP_SBC_DEFAULT_BITRATE 328
 
 #define A2DP_SBC_NON_EDR_MAX_RATE 229
+#define A2DP_SBC_EDR_MAX_RATE 553
+#define A2DP_SBC_EDR3_MAX_RATE 723
 
 #define A2DP_SBC_MAX_PCM_ITER_NUM_PER_TICK 3
 
-#define A2DP_SBC_MAX_HQ_FRAME_SIZE_44_1 119
-#define A2DP_SBC_MAX_HQ_FRAME_SIZE_48 115
+#define A2DP_SBC_MAX_HQ_FRAME_SIZE_44_1 165
+#define A2DP_SBC_MAX_HQ_FRAME_SIZE_48 165
 
 /* Define the bitrate step when trying to match bitpool value */
 #define A2DP_SBC_BITRATE_STEP 5
@@ -122,7 +124,7 @@ static void a2dp_sbc_get_num_frame_iteration(uint8_t* num_of_iterations,
 static uint16_t adjust_effective_mtu(
     const tA2DP_ENCODER_INIT_PEER_PARAMS& peer_params);
 static uint8_t calculate_max_frames_per_packet(void);
-static uint16_t a2dp_sbc_source_rate(bool is_peer_edr, int bitrate);
+static uint16_t a2dp_sbc_source_rate(bool is_peer_edr, bool peer_supports_3mbps, int bitrate);
 static uint32_t a2dp_sbc_frame_length(void);
 
 bool A2DP_LoadEncoderSbc(void) {
@@ -240,7 +242,9 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config,
   // Set the initial target bit rate
   const tA2DP_ENCODER_INIT_PEER_PARAMS& peer_params =
       a2dp_sbc_encoder_cb.peer_params;
-  p_encoder_params->u16BitRate = a2dp_sbc_source_rate(peer_params.is_peer_edr,a2dp_codec_config->getCodecUserConfig().codec_specific_1);
+  p_encoder_params->u16BitRate = a2dp_sbc_source_rate(peer_params.is_peer_edr,
+                                                        peer_params.peer_supports_3mbps,
+                                                        a2dp_codec_config->getCodecUserConfig().codec_specific_1);
 
   a2dp_sbc_encoder_cb.TxAaMtuSize = adjust_effective_mtu(peer_params);
   LOG_INFO("%s: MTU=%d, peer_mtu=%d min_bitpool=%d max_bitpool=%d", __func__,
@@ -341,9 +345,9 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config,
   SBC_Encoder_Init(&a2dp_sbc_encoder_cb.sbc_encoder_params);
   a2dp_sbc_encoder_cb.tx_sbc_frames = calculate_max_frames_per_packet();
 
-  if( p_encoder_params->u16BitRate > 496 ) {
+  if( p_encoder_params->u16BitRate > 449) {
       osi_property_set("baikal.last.a2dp_codec","SBC HDX");
-  } else if ( p_encoder_params->u16BitRate > 378 ) {
+  } else if ( (s16SamplingFreq < 48000 && p_encoder_params->u16BitRate > 328) || p_encoder_params->u16BitRate > 345 ) {
       osi_property_set("baikal.last.a2dp_codec","SBC HD");
   } else {
       if( p_encoder_params->s16ChannelMode == SBC_DUAL ) {
@@ -353,7 +357,7 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config,
       }
   }
 
-  snprintf ( strBitRate, 16, "%d", p_encoder_params->u16BitRate);
+  snprintf ( strBitRate, 16, "%d", p_encoder_params->s16ChannelMode == SBC_DUAL ? p_encoder_params->u16BitRate*2 : p_encoder_params->u16BitRate);
   osi_property_set("baikal.last.a2dp_bitrate", strBitRate);
 }
 
@@ -817,8 +821,23 @@ static uint8_t calculate_max_frames_per_packet(void) {
   return result;
 }
 
-static uint16_t a2dp_sbc_source_rate(bool is_peer_edr, int bitrate) {
+static uint16_t a2dp_sbc_source_rate(bool is_peer_edr, bool peer_supports_3mbps, int bitrate) {
   uint16_t rate = A2DP_SBC_DEFAULT_BITRATE;
+
+  if( bitrate > A2DP_SBC_DEFAULT_BITRATE ) {
+    rate = bitrate;
+    if( !is_peer_edr ) {
+      if( bitrate > A2DP_SBC_NON_EDR_MAX_RATE ) rate = A2DP_SBC_NON_EDR_MAX_RATE;
+    } else {
+      if( !peer_supports_3mbps ) {
+        if( bitrate > A2DP_SBC_EDR_MAX_RATE ) rate = A2DP_SBC_EDR_MAX_RATE;
+      } else {
+        if( bitrate > A2DP_SBC_EDR3_MAX_RATE ) rate = A2DP_SBC_EDR3_MAX_RATE;
+      }
+    }
+    LOG_ERROR("%s: Setting SBC HD max bitrate (edr=%d,3mbps=%d): %d", __func__, is_peer_edr, peer_supports_3mbps, rate);
+    return rate;
+  }
 
   /* restrict bitrate if a2dp link is non-edr */
   if (!is_peer_edr && bitrate == 0) {
@@ -826,8 +845,6 @@ static uint16_t a2dp_sbc_source_rate(bool is_peer_edr, int bitrate) {
     LOG_VERBOSE("%s: non-edr a2dp sink detected, restrict rate to %d", __func__,
                 rate);
   }
-
-  if( bitrate > A2DP_SBC_DEFAULT_BITRATE ) return bitrate;
 
   return rate;
 }
