@@ -864,6 +864,28 @@ public class A2dpService extends ProfileService {
         mA2dpCodecConfig.disableOptionalCodecs(device, codecStatus.getCodecConfig(), getSbcBitrate(device));
     }
 
+
+
+    public void setSbcBitrate(BluetoothDevice device) {
+        if (DBG) {
+            Log.d(TAG, "setSbcBitrate(" + device + ")");
+        }
+        if (device == null) {
+            device = mActiveDevice;
+        }
+        if (device == null) {
+            Log.e(TAG, "disableOptionalCodecs: Invalid device");
+            return;
+        }
+        BluetoothCodecStatus codecStatus = getCodecStatus(device);
+        if (codecStatus == null) {
+            Log.e(TAG, "disableOptionalCodecs: Codec status is null");
+            return;
+        }
+        updateLowLatencyAudioSupport(device);
+        mA2dpCodecConfig.setSbcBitrate(device, codecStatus.getCodecConfig(), getSbcBitrate(device));
+    }
+
     /**
      * Checks whether optional codecs are supported
      *
@@ -1266,6 +1288,8 @@ public class A2dpService extends ProfileService {
                     disableOptionalCodecs(device);
                     break;
             }
+        } else {
+            setSbcBitrate(device);
         }
     }
 
