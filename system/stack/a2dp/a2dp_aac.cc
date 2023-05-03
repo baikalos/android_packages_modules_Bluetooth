@@ -63,7 +63,7 @@ static const tA2DP_AAC_CIE a2dp_aac_cbr_source_caps = {
     // channelMode
     A2DP_AAC_CHANNEL_MODE_STEREO,
     // variableBitRateSupport
-    A2DP_AAC_VARIABLE_BIT_RATE_DISABLED,
+    A2DP_AAC_VARIABLE_BIT_RATE_ENABLED,
     // bitRate
     A2DP_AAC_DEFAULT_BITRATE,
     // bits_per_sample
@@ -105,7 +105,7 @@ static const tA2DP_AAC_CIE a2dp_aac_default_config = {
     A2DP_AAC_OBJECT_TYPE_MPEG2_LC,        // objectType
     A2DP_AAC_SAMPLING_FREQ_44100,         // sampleRate
     A2DP_AAC_CHANNEL_MODE_STEREO,         // channelMode
-    A2DP_AAC_VARIABLE_BIT_RATE_DISABLED,  // variableBitRateSupport
+    A2DP_AAC_VARIABLE_BIT_RATE_ENABLED,  // variableBitRateSupport
     A2DP_AAC_DEFAULT_BITRATE,             // bitRate
     BTAV_A2DP_CODEC_BITS_PER_SAMPLE_16    // bits_per_sample
 };
