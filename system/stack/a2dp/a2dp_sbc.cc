@@ -1277,23 +1277,28 @@ bool A2dpCodecConfigSbcBase::setCodecConfig(const uint8_t* p_peer_codec_info,
   codec_config_.channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_NONE;
 
   if( codec_user_config_.codec_specific_1 > 0 ) {
-    LOG_DEBUG("%s: FORCED DUAL CHANNEL capability", __func__);
+    LOG_ERROR("%s: FORCED DUAL CHANNEL capability", __func__);
   } else {
-    LOG_DEBUG("%s: FORCED DUAL CHANNEL disabled", __func__);
+    LOG_ERROR("%s: FORCED DUAL CHANNEL disabled", __func__);
   }
 
 
-  if( codec_user_config_.codec_specific_1 > 0  && (peer_info_cie.ch_mode & A2DP_SBC_IE_CH_MD_DUAL) ) {
+  if( codec_user_config_.codec_specific_1 > 0 /* && (peer_info_cie.ch_mode & A2DP_SBC_IE_CH_MD_DUAL)*/ ) {
     result_config_cie.ch_mode = A2DP_SBC_IE_CH_MD_DUAL;
     codec_capability_.channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
     codec_config_.channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
 
-    LOG_DEBUG("%s: FORCED DUAL CHANNEL channel_mode: source caps = 0x%x "
+    LOG_ERROR("%s: FORCED DUAL CHANNEL channel_mode: source caps = 0x%x "
               "sink info = 0x%x "
               "ch_mode = 0x%x",
               __func__, p_a2dp_sbc_caps->ch_mode, peer_info_cie.ch_mode, ch_mode);
 
   } else {
+
+    LOG_ERROR("%s: default channel_mode: source caps = 0x%x "
+              "sink info = 0x%x "
+              "ch_mode = 0x%x",
+              __func__, p_a2dp_sbc_caps->ch_mode, peer_info_cie.ch_mode, ch_mode);
 
     ch_mode &=~A2DP_SBC_IE_CH_MD_DUAL;
 
