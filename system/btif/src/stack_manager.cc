@@ -156,6 +156,14 @@ static void init_stack() {
   semaphore_t* semaphore = semaphore_new(0);
   management_thread.DoInThread(FROM_HERE,
                                base::Bind(event_init_stack, semaphore));
+
+  if (!management_thread.EnableRealTimeScheduling()) {
+#if defined(OS_ANDROID)
+    LOG(FATAL) << __func__
+               << ": Failed to increase stack manager thread priority";
+#endif
+  }
+
   semaphore_wait(semaphore);
   semaphore_free(semaphore);
 }
