@@ -51,7 +51,7 @@ import java.util.UUID;
 public class TbsGatt {
 
     private static final String TAG = "TbsGatt";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final String UUID_PREFIX = "0000";
     private static final String UUID_SUFFIX = "-0000-1000-8000-00805f9b34fb";

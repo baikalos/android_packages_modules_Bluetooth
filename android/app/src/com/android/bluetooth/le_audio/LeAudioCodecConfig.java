@@ -24,7 +24,7 @@ import android.util.Log;
  * LeAudio Codec Configuration setup.
  */
 class LeAudioCodecConfig {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "LeAudioCodecConfig";
 
     private Context mContext;

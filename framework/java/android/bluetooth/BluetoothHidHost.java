@@ -56,7 +56,7 @@ import java.util.concurrent.TimeoutException;
 @SystemApi
 public final class BluetoothHidHost implements BluetoothProfile {
     private static final String TAG = "BluetoothHidHost";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VDBG = false;
 
     /**

@@ -71,7 +71,7 @@ final class HapClientStateMachine extends StateMachine {
     static final int DISCONNECT = 2;
     @VisibleForTesting
     static final int STACK_EVENT = 101;
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "HapClientStateMachine";
     @VisibleForTesting
     static final int CONNECT_TIMEOUT = 201;

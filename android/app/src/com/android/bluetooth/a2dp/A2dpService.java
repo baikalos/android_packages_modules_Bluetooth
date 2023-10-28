@@ -69,7 +69,7 @@ import java.util.concurrent.ConcurrentMap;
  * @hide
  */
 public class A2dpService extends ProfileService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "A2dpService";
 
     // TODO(b/240635097): remove in U

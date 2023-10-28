@@ -36,7 +36,7 @@ import com.android.internal.annotations.VisibleForTesting;
  */
 public class LeAudioBroadcasterNativeInterface {
     private static final String TAG = "LeAudioBroadcasterNativeInterface";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private BluetoothAdapter mAdapter;
 
     @GuardedBy("INSTANCE_LOCK")

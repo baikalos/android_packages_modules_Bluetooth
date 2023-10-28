@@ -38,7 +38,7 @@ import java.util.UUID;
 public class TbsService extends ProfileService {
 
     private static final String TAG = "TbsService";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static TbsService sTbsService;
 

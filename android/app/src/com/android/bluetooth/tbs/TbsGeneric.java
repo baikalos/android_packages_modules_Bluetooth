@@ -51,7 +51,7 @@ import java.util.UUID;
 public class TbsGeneric {
 
     private static final String TAG = "TbsGeneric";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private static final String UCI = "GTBS";
     private static final String DEFAULT_PROVIDER_NAME = "none";

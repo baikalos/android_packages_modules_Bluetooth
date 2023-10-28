@@ -34,7 +34,7 @@ import java.util.Arrays;
  */
 public class HapClientNativeInterface {
     private static final String TAG = "HapClientNativeInterface";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private final BluetoothAdapter mAdapter;
 
     @GuardedBy("INSTANCE_LOCK")

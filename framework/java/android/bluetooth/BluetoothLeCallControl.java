@@ -54,7 +54,7 @@ import java.util.concurrent.Executor;
  */
 public final class BluetoothLeCallControl implements BluetoothProfile {
     private static final String TAG = "BluetoothLeCallControl";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VDBG = false;
 
     /** @hide */

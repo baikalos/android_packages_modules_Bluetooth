@@ -57,7 +57,7 @@ import java.util.concurrent.TimeoutException;
 @SystemApi
 public final class BluetoothHeadsetClient implements BluetoothProfile, AutoCloseable {
     private static final String TAG = "BluetoothHeadsetClient";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VDBG = false;
     private final CloseGuard mCloseGuard;
 

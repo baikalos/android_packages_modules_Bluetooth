@@ -39,7 +39,7 @@ import java.util.UUID;
  */
 @VisibleForTesting
 public class LeAudioTmapGattServer {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "LeAudioTmapGattServer";
 
     /* Telephony and Media Audio Profile Role Characteristic UUID */

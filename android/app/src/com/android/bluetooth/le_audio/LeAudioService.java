@@ -83,7 +83,7 @@ import java.util.Objects;
  * @hide
  */
 public class LeAudioService extends ProfileService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "LeAudioService";
 
     // Timeout for state machine thread join, to prevent potential ANR.

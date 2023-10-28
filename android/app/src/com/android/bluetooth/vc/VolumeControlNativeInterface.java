@@ -27,7 +27,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 public class VolumeControlNativeInterface {
     private static final String TAG = "VolumeControlNativeInterface";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private BluetoothAdapter mAdapter;
 
     @GuardedBy("INSTANCE_LOCK")

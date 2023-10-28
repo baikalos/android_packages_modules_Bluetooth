@@ -57,7 +57,7 @@ import java.util.concurrent.TimeoutException;
 @SystemApi
 public final class BluetoothLeBroadcast implements AutoCloseable, BluetoothProfile {
     private static final String TAG = "BluetoothLeBroadcast";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VDBG = false;
 
     private CloseGuard mCloseGuard;

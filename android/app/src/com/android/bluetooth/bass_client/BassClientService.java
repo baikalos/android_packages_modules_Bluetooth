@@ -72,7 +72,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Broacast Assistant Scan Service
  */
 public class BassClientService extends ProfileService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = BassClientService.class.getSimpleName();
     private static final int MAX_BASS_CLIENT_STATE_MACHINES = 10;
 

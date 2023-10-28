@@ -1978,6 +1978,8 @@ public class HeadsetService extends ProfileService {
         boolean isInbandRingingSupported = getResources().getBoolean(
                 com.android.bluetooth.R.bool.config_bluetooth_hfp_inband_ringing_support);
 
+        if( !isInbandRingingSupported ) return false;
+
         boolean inbandRingtoneAllowedByPolicy = true;
         List<BluetoothDevice> audioConnectableDevices = getConnectedDevices();
         if (audioConnectableDevices.size() == 1) {

@@ -109,7 +109,7 @@ import java.util.Objects;
  *      active Bluetooth device.
  */
 class ActiveDeviceManager {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "BluetoothActiveDeviceManager";
 
     // Message types for the handler

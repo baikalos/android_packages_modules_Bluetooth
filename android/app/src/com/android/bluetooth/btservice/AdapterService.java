@@ -164,7 +164,7 @@ import java.util.regex.Pattern;
 
 public class AdapterService extends Service {
     private static final String TAG = "BluetoothAdapterService";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VERBOSE = false;
     private static final int MIN_ADVT_INSTANCES_FOR_MA = 5;
     private static final int MIN_OFFLOADED_FILTERS = 10;

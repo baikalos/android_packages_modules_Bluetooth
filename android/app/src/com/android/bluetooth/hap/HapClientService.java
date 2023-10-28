@@ -68,7 +68,7 @@ import java.util.Objects;
  * @hide
  */
 public class HapClientService extends ProfileService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "HapClientService";
 
     // Upper limit of all HearingAccess devices: Bonded or Connected

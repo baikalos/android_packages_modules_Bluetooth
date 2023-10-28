@@ -60,7 +60,7 @@ import java.util.Map;
  * 6) If a device is not connected with A2DP or HFP, it cannot enter silence mode.
  */
 public class SilenceDeviceManager {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final boolean VERBOSE = false;
     private static final String TAG = "SilenceDeviceManager";
 

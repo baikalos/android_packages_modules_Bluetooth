@@ -40,7 +40,7 @@ import java.util.Objects;
 
 public class HfpClientConnectionService extends ConnectionService {
     private static final String TAG = "HfpClientConnService";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     public static final String HFP_SCHEME = "hfpc";
 
