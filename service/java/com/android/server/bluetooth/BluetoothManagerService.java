@@ -2432,6 +2432,8 @@ public class BluetoothManagerService extends IBluetoothManager.Stub {
                                 break;
                             }
                             mBluetooth = null;
+                            // Unbind
+                            mContext.unbindService(mConnection);
                             mSupportedProfileList.clear();
                         } else if (msg.arg1 == SERVICE_IBLUETOOTHGATT) {
                             mBluetoothGatt = null;
