@@ -173,12 +173,20 @@ static tA2DP_STATUS A2DP_ParseInfoSbc(tA2DP_SBC_CIE* p_ie,
 
   // Check the codec capability length
   losc = *p_codec_info++;
-  if (losc != A2DP_SBC_INFO_LEN) return A2DP_WRONG_CODEC;
+  if (losc != A2DP_SBC_INFO_LEN) {
+    LOG_ERROR("%s: cannot decode codec information: losc=%d, await=%d", __func__, (int)losc, (int)A2DP_SBC_INFO_LEN);
+    return A2DP_WRONG_CODEC;
+  }
 
   media_type = (*p_codec_info++) >> 4;
   codec_type = *p_codec_info++;
   /* Check the Media Type and Media Codec Type */
-  if (media_type != AVDT_MEDIA_TYPE_AUDIO || codec_type != A2DP_MEDIA_CT_SBC) {
+  if (media_type != AVDT_MEDIA_TYPE_AUDIO || 
+      codec_type != A2DP_MEDIA_CT_SBC) {
+    LOG_ERROR("%s: cannot decode codec information: media_type=%d, await=%d, codec_type=%d, await=%d", 
+        __func__, 
+        (int)media_type, (int)AVDT_MEDIA_TYPE_AUDIO, 
+        (int)codec_type, (int)A2DP_MEDIA_CT_SBC);
     return A2DP_WRONG_CODEC;
   }
 
