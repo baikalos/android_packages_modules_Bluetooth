@@ -73,7 +73,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 final class A2dpStateMachine extends StateMachine {
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
     private static final String TAG = "A2dpStateMachine";
 
     // TODO(b/240635097): remove in U

@@ -41,7 +41,9 @@ public final class BluetoothCodecConfig implements Parcelable {
     @IntDef(prefix = "SOURCE_CODEC_TYPE_",
         value = {SOURCE_CODEC_TYPE_SBC, SOURCE_CODEC_TYPE_AAC, SOURCE_CODEC_TYPE_APTX,
             SOURCE_CODEC_TYPE_APTX_HD, SOURCE_CODEC_TYPE_LDAC, SOURCE_CODEC_TYPE_LC3,
-            SOURCE_CODEC_TYPE_INVALID})
+            SOURCE_CODEC_TYPE_OPUS,
+            SOURCE_CODEC_TYPE_LHDCV3, SOURCE_CODEC_TYPE_LHDCV5,
+            SOURCE_CODEC_TYPE_MAX, SOURCE_CODEC_TYPE_INVALID})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SourceCodecType {}
 
@@ -79,7 +81,18 @@ public final class BluetoothCodecConfig implements Parcelable {
     /**
      * Source codec type Opus.
      */
-    private static final int SOURCE_CODEC_TYPE_OPUS = 6;
+    public static final int SOURCE_CODEC_TYPE_OPUS = 6;
+    // Savitech LHDC -- START
+    /**
+     * Source codec type LHDCV3(V4).
+     */
+    public static final int SOURCE_CODEC_TYPE_LHDCV3 = 7;
+
+    /**
+     * Source codec type LHDCV5.
+     */
+    public static final int SOURCE_CODEC_TYPE_LHDCV5 = 8;
+    // Savitech LHDC -- END
 
     /**
      * Source codec type invalid. This is the default value used for codec
@@ -90,7 +103,7 @@ public final class BluetoothCodecConfig implements Parcelable {
     /**
      * Represents the count of valid source codec types.
      */
-    private static final int SOURCE_CODEC_TYPE_MAX = 7;
+    private static final int SOURCE_CODEC_TYPE_MAX = 9;
 
     /** @hide */
     @IntDef(prefix = "CODEC_PRIORITY_", value = {
@@ -470,6 +483,12 @@ public final class BluetoothCodecConfig implements Parcelable {
                 return "LC3";
             case SOURCE_CODEC_TYPE_OPUS:
                 return "Opus";
+            // Savitech LHDC -- START
+            case SOURCE_CODEC_TYPE_LHDCV3:
+                return "LHDC V3";
+            case SOURCE_CODEC_TYPE_LHDCV5:
+                return "LHDC V5";
+            // Savitech LHDC -- END
             case SOURCE_CODEC_TYPE_INVALID:
                 return "INVALID CODEC";
             default:
@@ -671,7 +690,10 @@ public final class BluetoothCodecConfig implements Parcelable {
         if( other != null && other.mCodecSpecific1 != mCodecSpecific1) return false;
         return (other != null && other.mSampleRate == mSampleRate
                 && other.mBitsPerSample == mBitsPerSample
-                && other.mChannelMode == mChannelMode);
+                && other.mChannelMode == mChannelMode
+                && other.mCodecSpecific1 == mCodecSpecific1
+                && other.mCodecSpecific2 == mCodecSpecific2
+                && other.mCodecSpecific3 == mCodecSpecific3);
     }
 
     /**
@@ -732,6 +754,14 @@ public final class BluetoothCodecConfig implements Parcelable {
               if (mCodecSpecific1 != other.mCodecSpecific1) {
                 return false;
               }
+            case SOURCE_CODEC_TYPE_LHDCV3:
+            case SOURCE_CODEC_TYPE_LHDCV5:
+              if (mCodecSpecific1 != other.mCodecSpecific1 ||
+                  mCodecSpecific2 != other.mCodecSpecific2 ||
+                  mCodecSpecific3 != other.mCodecSpecific3) {
+                      return false;
+                  }
+              return true;
             default:
                 return true;
         }
