@@ -34,6 +34,7 @@ typedef struct {
   AAudioStream* stream;
   int bitsPerSample;
   int channelCount;
+  aaudio_format_t format; // Savitech LHDC_A2DP_SINK patch
   float* buffer;
   size_t bufferLength;
 } BtifAvrcpAudioTrack;
@@ -50,9 +51,13 @@ void* BtifAvrcpAudioTrackCreate(int trackFreq, int bitsPerSample,
 
   AAudioStreamBuilder* builder;
   AAudioStream* stream;
+  aaudio_format_t format; // Savitech LHDC_A2DP_SINK patch
   aaudio_result_t result = AAudio_createStreamBuilder(&builder);
   AAudioStreamBuilder_setSampleRate(builder, trackFreq);
-  AAudioStreamBuilder_setFormat(builder, AAUDIO_FORMAT_PCM_FLOAT);
+  // Savitech LHDC_A2DP_SINK patch - START
+  format = AAUDIO_FORMAT_PCM_FLOAT;
+  AAudioStreamBuilder_setFormat(builder, format);
+  // Savitech LHDC_A2DP_SINK patch - END
   AAudioStreamBuilder_setChannelCount(builder, channelCount);
   AAudioStreamBuilder_setSessionId(builder, AAUDIO_SESSION_ID_ALLOCATE);
   AAudioStreamBuilder_setPerformanceMode(builder,
@@ -66,6 +71,7 @@ void* BtifAvrcpAudioTrackCreate(int trackFreq, int bitsPerSample,
   trackHolder->stream = stream;
   trackHolder->bitsPerSample = bitsPerSample;
   trackHolder->channelCount = channelCount;
+  trackHolder->format = format; // Savitech LHDC_A2DP_SINK patch
   trackHolder->bufferLength =
       trackHolder->channelCount * AAudioStream_getBufferSizeInFrames(stream);
   trackHolder->buffer = new float[trackHolder->bufferLength]();

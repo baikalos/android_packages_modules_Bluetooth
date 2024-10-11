@@ -433,9 +433,9 @@ public class DatabaseManager {
             Metadata data = mMetadataCache.get(address);
             int connectionPolicy = data.getProfileConnectionPolicy(profile);
 
-            Log.v(TAG, "getProfileConnectionPolicy: device " + device.getAnonymizedAddress()
+            /*Log.v(TAG, "getProfileConnectionPolicy: device " + device.getAnonymizedAddress()
                     + " profile=" + BluetoothProfile.getProfileName(profile)
-                    + ", connectionPolicy=" + connectionPolicy);
+                    + ", connectionPolicy=" + connectionPolicy);*/
             return connectionPolicy;
         }
     }

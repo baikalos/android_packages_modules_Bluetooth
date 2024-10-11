@@ -109,11 +109,11 @@ public class BaikalDatabase extends ContentObserver {
                 updateSbcBitratesLocked();
             }
             if( !mBtDatabase.containsKey(device.getAddress()) ) {
-                Slog.i(TAG, "a2dp: SBC bitrate is not set: device=" + device);
+                //Slog.i(TAG, "a2dp: SBC bitrate is not set: device=" + device);
                 return 0;
             }
             int rate = mBtDatabase.get(device.getAddress()).intValue();
-            Slog.i(TAG, "a2dp: SBC bitrate:device=" + device + ", rate="  + rate);
+            //Slog.i(TAG, "a2dp: SBC bitrate:device=" + device + ", rate="  + rate);
             return rate;
         }
     }
