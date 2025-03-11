@@ -607,10 +607,13 @@ public class BluetoothManagerService extends IBluetoothManager.Stub {
             mEnableExternal = true;
         }
 
+        boolean baikal = Settings.Global.getInt(mContentResolver,
+                Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT, 0) == 1;
+
         String airplaneModeRadios =
                 Settings.Global.getString(mContentResolver, Settings.Global.AIRPLANE_MODE_RADIOS);
-        if (airplaneModeRadios == null || airplaneModeRadios.contains(
-                Settings.Global.RADIO_BLUETOOTH)) {
+        if (!baikal && (airplaneModeRadios == null || airplaneModeRadios.contains(
+                Settings.Global.RADIO_BLUETOOTH))) {
             mBluetoothAirplaneModeListener = new BluetoothAirplaneModeListener(
                     this, mBluetoothHandlerThread.getLooper(), context,
                     mBluetoothNotificationManager);
@@ -634,8 +637,25 @@ public class BluetoothManagerService extends IBluetoothManager.Stub {
      *  Returns true if airplane mode is currently on
      */
     private boolean isAirplaneModeOn() {
-        return Settings.Global.getInt(mContext.getContentResolver(),
+        final boolean isActive =  Settings.Global.getInt(mContext.getContentResolver(),
                 Settings.Global.AIRPLANE_MODE_ON, 0) == 1;
+        if( !isActive ) return false;
+
+        final boolean baikal = Settings.Global.getInt(mContext.getContentResolver(),
+                Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT, 0) == 1;
+
+        if( baikal ) return false;
+
+        // Check if airplane mode matters
+        final String airplaneModeRadios =
+                Settings.System.getString(mContext.getContentResolver(), Settings.Global.AIRPLANE_MODE_RADIOS);
+
+        final boolean isAirplaneSensitive =
+                airplaneModeRadios == null || airplaneModeRadios.contains(
+                        Settings.Global.RADIO_BLUETOOTH);
+
+        if( !isAirplaneSensitive ) return false;
+        return isActive;
     }
 
     /**
