@@ -56,4 +56,9 @@ public class MediaData {
 
         return true;
     }
+    @Override
+    public String toString() {
+        return "state=" + state + ", data=" + metadata + ", queue=" + queue;
+    }
+
 }

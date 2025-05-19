@@ -339,7 +339,7 @@ public class MediaPlayerWrapper {
             // This may happen if the controller is fully synced by the time the
             // first update is completed
             Log.v(TAG, "Trying to update with last sent metadata");
-            return;
+            //return;
         }
 
         synchronized (mCallbackLock) {

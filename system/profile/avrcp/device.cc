@@ -1356,6 +1356,10 @@ void Device::SendMediaUpdate(bool metadata, bool play_status, bool queue) {
                  << " : play_status= " << play_status << " : queue=" << queue
                  << " ; is_silence=" << is_silence;
 
+  LOG(INFO) << __func__ << ": Metadata=" << metadata
+                 << " : play_status= " << play_status << " : queue=" << queue
+                 << " ; is_silence=" << is_silence;
+
   if (queue) {
     HandleNowPlayingUpdate();
   }

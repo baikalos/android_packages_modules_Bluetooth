@@ -522,28 +522,26 @@ public class MediaPlayerList {
 
         // If we already have a controller for the package, then update it with this new controller
         // as the old controller has probably gone stale.
-        if (haveMediaPlayer(playerId)) {
+        if (!haveMediaPlayer(playerId)) {
+            MediaPlayerWrapper newPlayer = MediaPlayerWrapperFactory.wrap(
+                    mContext,
+                    controller,
+                    mLooper);
+
+            Log.i(TAG, "Adding wrapped media player: " + packageName + " at key: "
+                    + mMediaPlayerIds.get(controller.getPackageName()));
+
+            mMediaPlayers.put(playerId, newPlayer);
+        } else {
             d("Already have a controller for the player: " + packageName + ", updating instead");
             MediaPlayerWrapper player = mMediaPlayers.get(playerId);
             player.updateMediaController(controller);
-
-            // If the media controller we updated was the active player check if the media updated
-            if (playerId == mActivePlayerId) {
-                sendMediaUpdate(getActivePlayer().getCurrentMediaData());
-            }
-
-            return playerId;
         }
 
-        MediaPlayerWrapper newPlayer = MediaPlayerWrapperFactory.wrap(
-                mContext,
-                controller,
-                mLooper);
-
-        Log.i(TAG, "Adding wrapped media player: " + packageName + " at key: "
-                + mMediaPlayerIds.get(controller.getPackageName()));
-
-        mMediaPlayers.put(playerId, newPlayer);
+        // If the media controller we updated was the active player check if the media updated
+        if (playerId == mActivePlayerId) {
+            sendMediaUpdate(getActivePlayer().getCurrentMediaData());
+        }
         return playerId;
     }
 
@@ -676,7 +674,8 @@ public class MediaPlayerList {
             data.queue.add(data.metadata);
         }
 
-        Log.d(TAG, "sendMediaUpdate state=" + data.state);
+        //Log.d(TAG, "sendMediaUpdate state=" + data.state, new Throwable());
+        Log.d(TAG, "sendMediaUpdate state=" + data, new Throwable());
         mCurrMediaData = data;
         mCallback.run(data);
     }
