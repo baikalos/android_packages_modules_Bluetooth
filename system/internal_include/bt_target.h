@@ -539,7 +539,7 @@
 #define CONN_MGR_ID_L2CAP (GATT_MAX_APPS + 10)
 
 #ifndef GATT_MAX_PHY_CHANNEL
-#define GATT_MAX_PHY_CHANNEL 7
+#define GATT_MAX_PHY_CHANNEL 10
 #endif
 
 /* Used for conformance testing ONLY */
@@ -787,7 +787,7 @@
 /* Number of simultaneous stream endpoints. */
 #ifndef AVDT_NUM_SEPS
 //#define AVDT_NUM_SEPS 12
-#define AVDT_NUM_SEPS 14    //Savitech LHDC
+#define AVDT_NUM_SEPS 35    //Savitech LHDC
 #endif
 
 /* Number of transport channels setup by AVDT for all media streams */

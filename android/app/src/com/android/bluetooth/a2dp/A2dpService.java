@@ -69,7 +69,7 @@ import java.util.concurrent.ConcurrentMap;
  * @hide
  */
 public class A2dpService extends ProfileService {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "A2dpService";
 
     // TODO(b/240635097): remove in U
@@ -1094,7 +1094,7 @@ public class A2dpService extends ProfileService {
                 if (stackEvent.type == A2dpStackEvent.EVENT_TYPE_CONNECTION_STATE_CHANGED) {
                     switch (stackEvent.valueInt) {
                         case A2dpStackEvent.CONNECTION_STATE_CONNECTING: {
-                            updateSbcBitrate(device);
+                            //updateSbcBitrate(device);
                         }
                         case A2dpStackEvent.CONNECTION_STATE_CONNECTED:
                             // Create a new state machine only when connecting to a device
@@ -1186,6 +1186,8 @@ public class A2dpService extends ProfileService {
             sm = A2dpStateMachine.make(device, this, mA2dpNativeInterface,
                                        mStateMachinesThread.getLooper());
             mStateMachines.put(device, sm);
+            updateSbcBitrate(device);
+
             return sm;
         }
     }

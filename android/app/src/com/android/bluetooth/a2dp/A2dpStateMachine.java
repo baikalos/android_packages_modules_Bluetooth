@@ -73,7 +73,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 final class A2dpStateMachine extends StateMachine {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = "A2dpStateMachine";
 
     // TODO(b/240635097): remove in U
@@ -673,6 +673,13 @@ final class A2dpStateMachine extends StateMachine {
                 update = true;
             } else if ((newCodecConfig.getCodecType()
                         == SOURCE_CODEC_TYPE_OPUS) // TODO(b/240635097): update in U
+                    && (prevCodecConfig != null)
+                    // check framesize field
+                    && (prevCodecConfig.getCodecSpecific1()
+                        != newCodecConfig.getCodecSpecific1())) {
+                update = true;
+            } else if ((newCodecConfig.getCodecType()
+                        == BluetoothCodecConfig.SOURCE_CODEC_TYPE_SBC) // TODO(b/240635097): update in U
                     && (prevCodecConfig != null)
                     // check framesize field
                     && (prevCodecConfig.getCodecSpecific1()
