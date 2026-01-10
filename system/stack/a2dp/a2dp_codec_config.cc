@@ -443,6 +443,10 @@ tA2DP_STATUS A2dpCodecConfig::setCodecUserConfig(
     *p_restart_output = true;
   }
 
+  if(saved_codec_config.codec_specific_1 != new_codec_config.codec_specific_1) {
+    *p_restart_input = true;
+  }
+
   if (*p_restart_input || *p_restart_output) {
     *p_config_updated = true;
   }

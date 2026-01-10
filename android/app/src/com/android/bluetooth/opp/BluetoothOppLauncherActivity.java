@@ -501,6 +501,11 @@ public class BluetoothOppLauncherActivity extends Activity {
             return true;
         }
 
+        boolean baikal = Settings.Global.getInt(resolver,
+                Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT, 0) == 1;
+
+        if( baikal ) return true;
+
         // Check if airplane mode matters
         final String airplaneModeRadios =
                 Settings.System.getString(resolver, Settings.Global.AIRPLANE_MODE_RADIOS);
