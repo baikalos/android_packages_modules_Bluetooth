@@ -27,6 +27,7 @@ import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
 import android.media.AudioManager;
 import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.bluetooth.R;
@@ -83,6 +84,8 @@ class A2dpCodecConfig {
             BluetoothCodecConfig newCodecConfig) {
         requireNonNull(codecStatus);
 
+        Log.w(TAG,"setCodecConfigPreference: device:" + Objects.toString(device) + ", status:" + Objects.toString(codecStatus) + ", config:" + Objects.toString(newCodecConfig));
+
         // Check whether the codecConfig is selectable for this Bluetooth device.
         List<BluetoothCodecConfig> selectableCodecs = codecStatus.getCodecsSelectableCapabilities();
         if (!selectableCodecs.stream().anyMatch(codec -> codec.isMandatoryCodec())) {
@@ -113,10 +116,17 @@ class A2dpCodecConfig {
 
         BluetoothCodecConfig[] codecConfigArray = new BluetoothCodecConfig[1];
         codecConfigArray[0] = newCodecConfig;
+        if( newCodecConfig.isMandatoryCodec() ) {
+            String macAddress = device.getAddress();
+            Settings.Global.putLong(mContext.getContentResolver(), "persist.bluetooth.sbcbt." + macAddress.replace(":", ""), newCodecConfig.getCodecSpecific1());
+        }
         mA2dpNativeInterface.setCodecConfigPreference(device, codecConfigArray);
     }
 
     void enableOptionalCodecs(BluetoothDevice device, BluetoothCodecStatus currentCodecStatus) {
+
+        Log.w(TAG,"enableOptionalCodecs: device:" + Objects.toString(device) + ", status:" + Objects.toString(currentCodecStatus));
+
         if (currentCodecStatus != null && !currentCodecStatus.getCodecConfig().isMandatoryCodec()) {
             Log.i(
                     TAG,
@@ -163,26 +173,25 @@ class A2dpCodecConfig {
     }
 
     void disableOptionalCodecs(BluetoothDevice device, BluetoothCodecConfig currentCodecConfig) {
-        if (currentCodecConfig != null && currentCodecConfig.isMandatoryCodec()) {
-            Log.i(TAG, "disableOptionalCodecs: already using mandatory codec.");
-            if (!Flags.synchronizeCodecPreferencesAndPriority()) {
-                return;
-            }
+        Log.w(TAG,"disableOptionalCodecs: device:" + Objects.toString(device) + ", config:" + Objects.toString(currentCodecConfig));
+    
+        boolean changed = false;
+        long sbcBitrate = 0;
+        String macAddress = device.getAddress();
+        long bitrate = Settings.Global.getLong(mContext.getContentResolver(), "persist.bluetooth.sbcbt." + macAddress.replace(":", ""), 0L);
 
-            // Check if the mandatory codec has the highest priority
-            if (currentCodecConfig.getCodecPriority()
-                    == BluetoothCodecConfig.CODEC_PRIORITY_HIGHEST) {
-                Log.i(
-                        TAG,
-                        "disableOptionalCodecs: mandatory codec priority already set to"
-                                + " highest.");
+        if (currentCodecConfig != null && currentCodecConfig.isMandatoryCodec() && !changed) {
+            sbcBitrate = currentCodecConfig.getCodecSpecific1();
+            if( sbcBitrate != bitrate ) {
+                Log.i(TAG, "disableOptionalCodecs: sbc bitrate changed to " + sbcBitrate);
+                changed = true;
+            } else {
+                Log.i(TAG, "disableOptionalCodecs: already using mandatory codec.");
                 return;
             }
-            Log.i(
-                    TAG,
-                    "disableOptionalCodecs: incorrect mandatory codec priority, set codec"
-                            + " again");
         }
+
+        sbcBitrate = bitrate;
 
         BluetoothCodecConfig[] codecConfigArray = assignCodecConfigPriorities();
         if (codecConfigArray == null) {
@@ -192,7 +201,13 @@ class A2dpCodecConfig {
         for (int i = 0; i < codecConfigArray.length; i++) {
             BluetoothCodecConfig codecConfig = codecConfigArray[i];
             if (codecConfig.isMandatoryCodec()) {
-                codecConfig.setCodecPriority(BluetoothCodecConfig.CODEC_PRIORITY_HIGHEST);
+                codecConfig =
+                    new BluetoothCodecConfig.Builder()
+                        .setCodecType(BluetoothCodecConfig.SOURCE_CODEC_TYPE_SBC)
+                        .setCodecPriority(BluetoothCodecConfig.CODEC_PRIORITY_HIGHEST)
+                        .setCodecSpecific1(sbcBitrate)
+                        .build();
+                codecConfigArray[i] = codecConfig;
             } else {
                 codecConfigArray[i] = null;
             }
