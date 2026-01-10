@@ -18,6 +18,7 @@
 package com.android.server.bluetooth.airplane
 
 import android.content.ContentResolver
+import android.content.Context
 import android.os.Looper
 import android.provider.Settings
 import com.android.server.bluetooth.Log
@@ -74,3 +75,23 @@ internal const val APM_ENHANCEMENT = "apm_enhancement_enabled"
 
 // Define if the "Airplane Enhancement Mode" feature is enabled by default. `0` == disabled
 private const val DEFAULT_APM_ENHANCEMENT_STATE = 1
+
+/** Airplane Enhancement Mode: Indicate if the feature is enabled or not. */
+private fun isApmEnhancementEnabled(resolver: ContentResolver) =
+    Settings.Global.getInt(resolver, APM_ENHANCEMENT, DEFAULT_APM_ENHANCEMENT_STATE) == 1 ||
+    Settings.Global.getInt(resolver, Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT, 0) == 1;
+
+/** Airplane Enhancement Mode: Return true if the wifi should stays on during airplane mode */
+private fun isWifiOnApm(resolver: ContentResolver, getUser: () -> Context) =
+    Settings.Global.getInt(resolver, Settings.Global.WIFI_ON, 0) != 0 &&
+        (Settings.Secure.getInt(getUser().contentResolver, WIFI_APM_STATE, 0) == 1 || 
+        Settings.Global.getInt(getUser().contentResolver, Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_WIFI, 0) == 1 )
+
+/** Airplane Enhancement Mode: Return true if this user already toggled (aka used) the feature */
+fun hasUserToggledApm(userContext: Context) =
+    Settings.Secure.getInt(userContext.contentResolver, APM_USER_TOGGLED_BLUETOOTH, 0) == 1
+
+/** Airplane Enhancement Mode: Return true if the bluetooth should stays on during airplane mode */
+private fun isBluetoothOnAPM(getUser: () -> Context) =
+    Settings.Secure.getInt(getUser().contentResolver, BLUETOOTH_APM_STATE, 0) == 1 ||
+    Settings.Global.getInt(getUser().contentResolver, Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT, 0) == 1;
