@@ -34,6 +34,7 @@
 #include "stack/include/a2dp_codec_api.h"
 #include "stack/include/a2dp_vendor_opus.h"
 #include "stack/include/a2dp_vendor_opus_constants.h"
+#include "osi/include/properties.h"
 #include "stack/include/bt_hdr.h"
 
 using namespace bluetooth;
@@ -248,6 +249,9 @@ static bool a2dp_vendor_opus_encoder_update(uint16_t peer_mtu, A2dpCodecConfig* 
   } else if (p_encoder_params->pcm_wlength == 4) {
     p_encoder_params->pcm_fmt = 32;
   }
+
+  osi_property_set("baikal.last.a2dp_codec","OPUS");
+  osi_property_set("baikal.last.a2dp_bitrate", "0");
 
   return true;
 }

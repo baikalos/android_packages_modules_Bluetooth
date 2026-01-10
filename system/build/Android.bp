@@ -15,7 +15,6 @@ cc_defaults {
     ],
     cflags: [
         "-DEXPORT_SYMBOL=__attribute__((visibility(\"default\")))",
-        "-DLOG_NDEBUG=0",
         "-fvisibility=hidden",
     ],
     target: {
