@@ -81,6 +81,7 @@ private fun getRadioModeValue(resolver: ContentResolver, radio: String, modeKey:
  * @return false if Bluetooth should not listen for mode change related to the {@code radio}
  */
 private fun isSensitive(resolver: ContentResolver, radio: String): Boolean {
+    if( Settings.Global.getInt(resolver,Settings.Global.BAIKALOS_AIRPLANE_DONT_TOGGLE_BT,0) == 1 ) return false
     val radios = Settings.Global.getString(resolver, radio)
     return radios != null && radios.contains(Settings.Global.RADIO_BLUETOOTH)
 }
