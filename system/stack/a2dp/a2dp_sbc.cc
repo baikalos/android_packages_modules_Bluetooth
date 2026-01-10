@@ -911,6 +911,11 @@ static bool select_audio_bits_per_sample(const btav_a2dp_codec_config_t* p_codec
 //
 static bool select_best_channel_mode(uint8_t ch_mode, tA2DP_SBC_CIE* p_result,
                                      btav_a2dp_codec_config_t* p_codec_config) {
+  if (ch_mode & A2DP_SBC_IE_CH_MD_DUAL) {
+    p_result->ch_mode = A2DP_SBC_IE_CH_MD_DUAL;
+    p_codec_config->channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
+    return true;
+  }
   if (ch_mode & A2DP_SBC_IE_CH_MD_JOINT) {
     p_result->ch_mode = A2DP_SBC_IE_CH_MD_JOINT;
     p_codec_config->channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
@@ -952,6 +957,11 @@ static bool select_audio_channel_mode(const btav_a2dp_codec_config_t* p_codec_au
       }
       break;
     case BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO:
+      if (ch_mode & A2DP_SBC_IE_CH_MD_DUAL) {
+        p_result->ch_mode = A2DP_SBC_IE_CH_MD_DUAL;
+        p_codec_config->channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
+        return true;
+      }
       if (ch_mode & A2DP_SBC_IE_CH_MD_JOINT) {
         p_result->ch_mode = A2DP_SBC_IE_CH_MD_JOINT;
         p_codec_config->channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
@@ -1133,6 +1143,15 @@ tA2DP_STATUS A2dpCodecConfigSbcBase::setCodecConfig(const uint8_t* p_peer_codec_
   //
   ch_mode = p_a2dp_sbc_caps->ch_mode & peer_info_cie.ch_mode;
   codec_config_.channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_NONE;
+
+  if( codec_user_config_.codec_specific_1 > 0 ) {
+    log::error("{}: FORCED DUAL CHANNEL capability", __func__);
+    ch_mode |= A2DP_SBC_IE_CH_MD_DUAL;
+    codec_user_config_.channel_mode = BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO;
+  } else {
+    log::error("{}: FORCED DUAL CHANNEL disabled", __func__);
+  }
+
   switch (codec_user_config_.channel_mode) {
     case BTAV_A2DP_CODEC_CHANNEL_MODE_MONO:
       if (ch_mode & A2DP_SBC_IE_CH_MD_MONO) {
@@ -1141,6 +1160,11 @@ tA2DP_STATUS A2dpCodecConfigSbcBase::setCodecConfig(const uint8_t* p_peer_codec_
       }
       break;
     case BTAV_A2DP_CODEC_CHANNEL_MODE_STEREO:
+      if (ch_mode & A2DP_SBC_IE_CH_MD_DUAL) {
+        result_config_cie.ch_mode = A2DP_SBC_IE_CH_MD_DUAL;
+        codec_config_.channel_mode = codec_user_config_.channel_mode;
+        break;
+      }
       if (ch_mode & A2DP_SBC_IE_CH_MD_JOINT) {
         result_config_cie.ch_mode = A2DP_SBC_IE_CH_MD_JOINT;
         codec_config_.channel_mode = codec_user_config_.channel_mode;

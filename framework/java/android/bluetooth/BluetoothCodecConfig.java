@@ -804,6 +804,7 @@ public final class BluetoothCodecConfig implements Parcelable {
             return false;
         }
         switch (getCodecType()) {
+            case SOURCE_CODEC_TYPE_SBC:
             case SOURCE_CODEC_TYPE_AAC:
             case SOURCE_CODEC_TYPE_LDAC:
             case SOURCE_CODEC_TYPE_LC3:

@@ -28,6 +28,7 @@ import android.annotation.NonNull;
 import android.bluetooth.BluetoothCodecConfig;
 import android.bluetooth.BluetoothCodecType;
 import android.bluetooth.BluetoothDevice;
+import android.util.Log;
 
 import com.android.bluetooth.Utils;
 import com.android.bluetooth.btservice.AdapterService;
@@ -36,6 +37,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.lang.annotation.Native;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /** A2DP Native Interface to/from JNI. */
 public class A2dpNativeInterface {
@@ -129,6 +131,7 @@ public class A2dpNativeInterface {
      */
     public boolean setCodecConfigPreference(
             BluetoothDevice device, BluetoothCodecConfig[] codecConfigArray) {
+        Log.w(TAG,"setCodecConfigPreference: device:" + Objects.toString(device) + ", config:" + Objects.toString(codecConfigArray), new Throwable());
         return setCodecConfigPreferenceNative(getByteAddress(device), codecConfigArray);
     }
 
