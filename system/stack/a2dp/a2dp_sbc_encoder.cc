@@ -39,6 +39,7 @@
 #include "embdrv/sbc/encoder/include/sbc_encoder.h"
 #include "internal_include/bt_target.h"
 #include "osi/include/allocator.h"
+#include "osi/include/properties.h"
 #include "stack/include/bt_hdr.h"
 
 /* Buffer pool */
@@ -116,7 +117,7 @@ typedef struct {
   int16_t pcmBuffer[SBC_MAX_PCM_BUFFER_SIZE];
 
   a2dp_sbc_encoder_stats_t stats;
-  bool hd;
+  int16_t hd_bitrate;
 } tA2DP_SBC_ENCODER_CB;
 
 static tA2DP_SBC_ENCODER_CB a2dp_sbc_encoder_cb;
@@ -166,6 +167,7 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config, bool* p_
   uint8_t protect = 0;
   int min_bitpool;
   int max_bitpool;
+  char strBitRate[16];
 
   *p_restart_input = false;
   *p_restart_output = false;
@@ -178,7 +180,7 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config, bool* p_
   const uint8_t* p_codec_info = codec_info;
 
   btav_a2dp_codec_config_t codec_config = a2dp_codec_config->getCodecConfig();
-  a2dp_sbc_encoder_cb.hd = codec_config.codec_specific_1 == 0x1337;
+  a2dp_sbc_encoder_cb.hd_bitrate = codec_config.codec_specific_1;// == 0x1337;
 
   min_bitpool = A2DP_GetMinBitpoolSbc(p_codec_info);
   max_bitpool = A2DP_GetMaxBitpoolSbc(p_codec_info);
@@ -325,6 +327,21 @@ static void a2dp_sbc_encoder_update(A2dpCodecConfig* a2dp_codec_config, bool* p_
   /* Reset the SBC encoder */
   SBC_Encoder_Init(&a2dp_sbc_encoder_cb.sbc_encoder_params);
   a2dp_sbc_encoder_cb.tx_sbc_frames = calculate_max_frames_per_packet();
+
+  if( p_encoder_params->u16BitRate > 449) {
+      osi_property_set("baikal.last.a2dp_codec","SBC HDX");
+  } else if ( (s16SamplingFreq < 48000 && p_encoder_params->u16BitRate > 328) || p_encoder_params->u16BitRate > 345 ) {
+      osi_property_set("baikal.last.a2dp_codec","SBC HD");
+  } else {
+      if( p_encoder_params->s16ChannelMode == SBC_DUAL ) {
+          osi_property_set("baikal.last.a2dp_codec","SBC DC");
+      } else {
+          osi_property_set("baikal.last.a2dp_codec","SBC");
+      }
+  }
+
+  snprintf ( strBitRate, 16, "%d", p_encoder_params->s16ChannelMode == SBC_DUAL ? p_encoder_params->u16BitRate*2 : p_encoder_params->u16BitRate);
+  osi_property_set("baikal.last.a2dp_bitrate", strBitRate);
 }
 
 void a2dp_sbc_encoder_cleanup(void) {
@@ -766,21 +783,50 @@ static uint8_t calculate_max_frames_per_packet(void) {
 static uint16_t a2dp_sbc_source_rate(bool is_peer_edr) {
   uint16_t rate = A2DP_SBC_DEFAULT_BITRATE;
 
+  if(a2dp_sbc_encoder_cb.hd_bitrate > 0 && a2dp_sbc_encoder_cb.hd_bitrate < 8 ) {
+    switch(a2dp_sbc_encoder_cb.hd_bitrate ) {
+        case 7:
+            rate = 723;
+            break;
+        case 6:
+            rate = 601;
+            break;
+        case 5:
+            rate = 552;
+            break;
+        case 4:
+            rate = 450;
+            break;
+        case 3:
+            rate = 400;
+            break;
+        case 2:
+            rate = 328;
+            break;
+        case 1:
+            rate = 229;
+            break;
+    }
+    log::error("forced dual channel sbc rate set to {}", rate);
+    return rate;
+  }
   /* check if we're SBC HD */
-  if (a2dp_sbc_encoder_cb.hd &&
+  /*if (a2dp_sbc_encoder_cb.hd &&
       a2dp_sbc_encoder_cb.peer_params.peer_supports_3mbps &&
       a2dp_sbc_encoder_cb.TxAaMtuSize >= MIN_3MBPS_AVDTP_SAFE_MTU) {
     rate = A2DP_SBC_3DH5_DEFAULT_BITRATE;
     if (a2dp_sbc_encoder_cb.sbc_encoder_params.s16SamplingFreq == SBC_sf48000) {
       rate = A2DP_SBC_3DH5_48KHZ_BITRATE;
     }
-  }
+  }*/
 
   /* restrict bitrate if a2dp link is non-edr */
   if (!is_peer_edr) {
     rate = A2DP_SBC_NON_EDR_MAX_RATE;
-    log::verbose("non-edr a2dp sink detected, restrict rate to {}", rate);
+    log::error("non-edr a2dp sink detected, restrict sbc rate to {}", rate);
   }
+
+  log::error("sbc rate set to {}", rate);
 
   return rate;
 }

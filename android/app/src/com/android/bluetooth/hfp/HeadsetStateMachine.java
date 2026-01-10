@@ -2223,7 +2223,7 @@ class HeadsetStateMachine extends StateMachine {
         if (mHeadsetService.isVirtualCallStarted()) {
             // In virtual call, send our phone number instead of remote phone number
             String phoneNumber = mSystemInterface.getSubscriberNumber();
-            if (phoneNumber == null || phoneNumber == "") {
+            if (phoneNumber == null || phoneNumber.equals("")) {
                 phoneNumber = "10000000";
             }
             int type = PhoneNumberUtils.toaFromString(phoneNumber);

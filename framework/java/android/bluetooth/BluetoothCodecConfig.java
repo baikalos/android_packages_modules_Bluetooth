@@ -561,7 +561,7 @@ public final class BluetoothCodecConfig implements Parcelable {
      * @return {@code true} if the codec is mandatory, {@code false} otherwise
      */
     public boolean isMandatoryCodec() {
-        return mCodecType == null ? false : (mCodecType.isMandatoryCodec() && getCodecSpecific1() != 0x1337);
+        return mCodecType == null ? false : (mCodecType.isMandatoryCodec() /*&& getCodecSpecific1() != 0x1337*/);
     }
 
     /**
@@ -804,6 +804,7 @@ public final class BluetoothCodecConfig implements Parcelable {
             return false;
         }
         switch (getCodecType()) {
+            case SOURCE_CODEC_TYPE_SBC:
             case SOURCE_CODEC_TYPE_AAC:
             case SOURCE_CODEC_TYPE_LDAC:
             case SOURCE_CODEC_TYPE_LC3:
