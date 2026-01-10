@@ -33,6 +33,7 @@
 #include "stack/include/a2dp_vendor.h"
 #include "stack/include/a2dp_vendor_aptx.h"
 #include "stack/include/avdt_api.h"
+#include "osi/include/properties.h"
 #include "stack/include/bt_hdr.h"
 
 using namespace bluetooth;
@@ -180,6 +181,9 @@ static void a2dp_vendor_aptx_encoder_update(A2dpCodecConfig* a2dp_codec_config,
   log::info("sample_rate={} bits_per_sample={} channel_count={}", p_feeding_params->sample_rate,
             p_feeding_params->bits_per_sample, p_feeding_params->channel_count);
   a2dp_vendor_aptx_feeding_reset();
+
+  osi_property_set("baikal.last.a2dp_codec","APTX");
+  osi_property_set("baikal.last.a2dp_bitrate", "0");
 }
 
 void a2dp_vendor_aptx_encoder_cleanup(void) {
